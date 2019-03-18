@@ -6,12 +6,22 @@ import logging
 
 class MyControllerMap:
     def __init__(self):
-        self.button = {'A': 'L'} # Fast forward (10 seg) pro Youtube
+        self.button = {'A':'SPACE'} # Fast forward (10 seg) pro Youtube
+        self.button = {'B':''} # Fast forward (10 seg) pro Youtube
+        self.button = {'C': 'L'} # Fast forward (10 seg) pro Youtube
+       
 
 class SerialControllerInterface:
     # Protocolo
-    # byte 1 -> Botão 1 (estado - Apertado 1 ou não 0)
-    # byte 2 -> EOP - End of Packet -> valor reservado 'X'
+    
+    
+    # a-> playpause
+    # b-> next
+    # c-> back
+
+    # byte 1 -> Qual botão ('a','b','c')
+    # byte 2 (estado - Apertado 1 ou não 0)
+    # byte 3 -> EOP - End of Packet -> valor reservado 'X'
 
     def __init__(self, port, baudrate):
         self.ser = serial.Serial(port, baudrate=baudrate)
@@ -28,12 +38,33 @@ class SerialControllerInterface:
         data = self.ser.read()
         logging.debug("Received DATA: {}".format(data))
 
-        if data == b'1':
-            logging.info("KEYDOWN A")
-            pyautogui.keyDown(self.mapping.button['A'])
-        elif data == b'0':
-            logging.info("KEYUP A")
-            pyautogui.keyUp(self.mapping.button['A'])
+
+        if data == b'A':
+            data = self.ser.read()
+            if data == b'1':
+                logging.info("KEYDOWN PLAYPAUSE")
+                pyautogui.keyDown(self.mapping.button['A'])
+            elif data == b'0':
+                logging.info("KEYUP PLAYPAUSE")
+                pyautogui.keyUp(self.mapping.button['A'])
+
+         if data == b'B':
+            data = self.ser.read()
+            if data == b'1':
+                logging.info("KEYDOWN BACK")
+                pyautogui.keyDown(self.mapping.button['B'])
+            elif data == b'0':
+                logging.info("KEYUP BACK")
+                pyautogui.keyUp(self.mapping.button['B'])
+        if data == b'C':
+            data = self.ser.read()
+            if data == b'1':
+                logging.info("KEYDOWN NEXT")
+                pyautogui.keyDown(self.mapping.button['C'])
+            elif data == b'0':
+                logging.info("KEYUP NEXT")
+                pyautogui.keyUp(self.mapping.button['C'])
+
 
         self.incoming = self.ser.read()
 
